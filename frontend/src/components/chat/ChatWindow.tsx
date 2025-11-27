@@ -1,11 +1,9 @@
 import { useCallback, useState, useMemo, useEffect, useRef } from 'react';
-import { MicIcon, Copy, Check, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { MicIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import type { ToolUIPart } from 'ai';
 import type { StickToBottomContext } from 'use-stick-to-bottom';
 import { useSearchParams } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-
 import {
   MessageBranch,
   MessageBranchContent,
@@ -43,6 +41,7 @@ import {
 } from '@/components/ai-elements/prompt-input';
 
 import { AgentModelSelector } from '@/components/chat/AgentModelSelector';
+import { MessageActions } from '@/components/chat/MessageActions';
 
 import {
   Reasoning,
@@ -62,8 +61,10 @@ import {
 // import { Suggestion, Suggestions } from '@/components/ai-elements/suggestion';
 import {
   getConversationMessages,
+  getConversation,
   newConversation,
   sendMessageToConversation,
+  createAgentRunFeedback,
   type ChatMessage,
   type ConversationMessageListParams,
 } from '@/services/chatApi';
@@ -94,78 +95,6 @@ type MessageType = {
 interface ChatWindowProps {
   chatId: string | null;
   onConversationCreated?: (conversationId: string) => void;
-}
-
-interface ResponseActionsProps {
-  content: string;
-}
-
-function ResponseActions({ content }: ResponseActionsProps) {
-  const [copied, setCopied] = useState(false);
-
-  useEffect(() => {
-    if (!copied) {
-      return;
-    }
-    const timer = setTimeout(() => setCopied(false), 4000);
-    return () => clearTimeout(timer);
-  }, [copied]);
-
-  const handleCopy = async () => {
-    if (!content) {
-      return;
-    }
-    try {
-      if (typeof navigator === 'undefined' || !navigator.clipboard) {
-        throw new Error('Clipboard API not available');
-      }
-      await navigator.clipboard.writeText(content);
-      setCopied(true);
-      toast.success('Response copied');
-    } catch (error) {
-      console.error(error);
-      toast.error('Unable to copy response');
-    }
-  };
-
-  const handleFeedback = (sentiment: 'up' | 'down') => {
-    toast.info(`Feedback (${sentiment === 'up' ? 'helpful' : 'not helpful'}) recorded`);
-  };
-
-  return (
-    <div className="mt-3 flex items-center gap-2 text-muted-foreground">
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className="h-7 w-7"
-        onClick={handleCopy}
-        aria-label={copied ? 'Copied' : 'Copy response'}
-      >
-        {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-      </Button>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className="h-7 w-7"
-        onClick={() => handleFeedback('up')}
-        aria-label="Mark response helpful"
-      >
-        <ThumbsUp className="h-4 w-4" />
-      </Button>
-      <Button
-        type="button"
-        variant="ghost"
-        size="icon"
-        className="h-7 w-7"
-        onClick={() => handleFeedback('down')}
-        aria-label="Mark response not helpful"
-      >
-        <ThumbsDown className="h-4 w-4" />
-      </Button>
-    </div>
-  );
 }
 
 // Component to conditionally render header only when there are attachments
@@ -358,6 +287,16 @@ export function ChatWindow({ chatId, onConversationCreated }: ChatWindowProps) {
 
   useEffect(() => {
     if (chatId) {
+      getConversation(chatId)
+        .then((conversation) => {
+          if (conversation?.agent) {
+            setModel((prev) => prev || conversation.agent);
+            setModelName((prev) => prev || conversation.agent);
+          }
+        })
+        .catch((error) => {
+          console.error('Failed to load conversation agent', error);
+        });
       return;
     }
     const agentFromQuery = searchParams.get('agent') ?? '';
@@ -365,6 +304,32 @@ export function ChatWindow({ chatId, onConversationCreated }: ChatWindowProps) {
       setModel(agentFromQuery);
     }
   }, [chatId, searchParams, model]);
+
+  const handleFeedback = useCallback(
+    async (
+      feedbackType: 'Thumbs Up' | 'Thumbs Down',
+      options?: { agentMessageId?: string; comments?: string }
+    ) => {
+      if (!model) {
+        toast.error('Select an agent before submitting feedback');
+        return;
+      }
+
+      try {
+        await createAgentRunFeedback({
+          agent: model,
+          feedback: feedbackType,
+          comments: options?.comments,
+          conversation: chatId ?? undefined,
+          agent_message: options?.agentMessageId,
+        });
+        toast.success('Thanks for the feedback!');
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [model, chatId]
+  );
 
   const streamResponse = useCallback(
     async (messageId: string, content: string) => {
@@ -672,7 +637,11 @@ export function ChatWindow({ chatId, onConversationCreated }: ChatWindowProps) {
                           <MessageContent>
                             <MessageResponse>{version.content}</MessageResponse>
                             {message.from === 'assistant' && version.content && (
-                              <ResponseActions content={version.content} />
+                              <MessageActions
+                                content={version.content}
+                                onFeedback={handleFeedback}
+                                agentMessageId={version.id}
+                              />
                             )}
                           </MessageContent>
                         </div>
