@@ -1,6 +1,6 @@
 {
  "charts": [],
- "content": "[{\"id\":\"OsSj2RjLVu\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Huf</span>\",\"col\":12}},{\"id\":\"thF8uDQcfk\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Huf\",\"col\":2}},{\"id\":\"RqxcQixz9w\",\"type\":\"card\",\"data\":{\"card_name\":\"Setup\",\"col\":4}}]",
+ "content": "[{\"id\":\"OsSj2RjLVu\",\"type\":\"header\",\"data\":{\"text\":\"<span class=\\\"h4\\\">Huf</span>\",\"col\":12}},{\"id\":\"bQg_Z1kSdV\",\"type\":\"custom_block\",\"data\":{\"custom_block_name\":\"Huf\",\"col\":2}},{\"id\":\"RqxcQixz9w\",\"type\":\"card\",\"data\":{\"card_name\":\"Setup\",\"col\":4}}]",
  "creation": "2025-11-04 17:24:07.034098",
  "custom_blocks": [
   {
@@ -88,7 +88,7 @@
    "type": "Link"
   }
  ],
- "modified": "2025-11-27 10:40:15.516702",
+ "modified": "2025-11-27 15:45:58.482158",
  "modified_by": "Administrator",
  "module": "Huf",
  "name": "Huf",
