@@ -49,24 +49,23 @@ def after_migrate():
 
 def create_demo_ai_providers():
     providers = [
-        {"doctype": "AI Provider", "provide_name": "OpenAI", "api_key": ""},
-        {"doctype": "AI Provider", "provide_name": "OpenRouter","api_key": ""},
-        {"doctype": "AI Provider", "provide_name": "Anthropic", "api_key": ""},
-        {"doctype": "AI Provider", "provide_name": "Google", "api_key": ""},
-        {"doctype": "AI Provider", "provide_name": "xai", "api_key": ""},
-        {"doctype": "AI Provider", "provide_name": "grok", "api_key": ""},
-        {"doctype": "AI Provider", "provide_name": "mistral", "api_key": ""},
-        {"doctype": "AI Provider", "provide_name": "alibaba", "api_keuy": ""},
-        {"doctype": "AI Provider", "provide_name": "dashscope", "api_key": ""},
-        {"doctype": "AI Provider", "provide_name": "cohere", "api_key": ""},
-        {"doctype": "AI Provider", "provide_name": "perplexity", "api_key": ""},
-        {"doctype": "AI Provider", "provide_name": "meta", "api_key": ""},
-        {"doctype": "AI Provider", "provide_name": "TogetherAI", "api_key": ""},
-        {"doctype": "AI Provider", "provide_name": "DeepSeek", "api_key": ""},
-        {"doctype": "AI Provider", "provide_name": "Azure OpenAI", "api_key": ""},
-        {"doctype": "AI Provider", "provide_name": "AWS Bedrock", "api_key": ""},
-        {"doctype": "AI Provider", "provide_name": "Ollama", "api_key": "ollama"}, 
-        {"doctype": "AI Provider", "provide_name": "Cohere", "api_key": ""}
+        {"doctype": "AI Provider", "provide_name": "OpenAI", "slug": "openai", "chef": "OpenAI", "api_key": ""},
+        {"doctype": "AI Provider", "provide_name": "OpenRouter", "slug": "openrouter", "chef": "OpenRouter", "api_key": ""},
+        {"doctype": "AI Provider", "provide_name": "Anthropic", "slug": "anthropic", "chef": "Anthropic", "api_key": ""},
+        {"doctype": "AI Provider", "provide_name": "Google", "slug": "google", "chef": "Google", "api_key": ""},
+        {"doctype": "AI Provider", "provide_name": "xAI", "slug": "xai", "chef": "xAI", "api_key": ""},
+        {"doctype": "AI Provider", "provide_name": "Grok", "slug": "grok", "chef": "xAI", "api_key": ""},
+        {"doctype": "AI Provider", "provide_name": "Mistral", "slug": "mistral", "chef": "Mistral", "api_key": ""},
+        {"doctype": "AI Provider", "provide_name": "Alibaba", "slug": "alibaba", "chef": "Alibaba", "api_key": ""},
+        {"doctype": "AI Provider", "provide_name": "DashScope", "slug": "dashscope", "chef": "Alibaba", "api_key": ""},
+        {"doctype": "AI Provider", "provide_name": "Cohere", "slug": "cohere", "chef": "Cohere", "api_key": ""},
+        {"doctype": "AI Provider", "provide_name": "Perplexity", "slug": "perplexity", "chef": "Perplexity", "api_key": ""},
+        {"doctype": "AI Provider", "provide_name": "Meta", "slug": "meta", "chef": "Meta", "api_key": ""},
+        {"doctype": "AI Provider", "provide_name": "TogetherAI", "slug": "togetherai", "chef": "TogetherAI", "api_key": ""},
+        {"doctype": "AI Provider", "provide_name": "DeepSeek", "slug": "deepseek", "chef": "DeepSeek", "api_key": ""},
+        {"doctype": "AI Provider", "provide_name": "Azure OpenAI", "slug": "azure", "chef": "Microsoft", "api_key": ""},
+        {"doctype": "AI Provider", "provide_name": "AWS Bedrock", "slug": "bedrock", "chef": "Amazon", "api_key": ""},
+        {"doctype": "AI Provider", "provide_name": "Ollama", "slug": "ollama", "chef": "Ollama", "api_key": ""},
     ]
 
     for p in providers:
