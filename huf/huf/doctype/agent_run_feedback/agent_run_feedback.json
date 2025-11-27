@@ -31,12 +31,14 @@
    "options": "Agent"
   },
   {
+   "fetch_from": "agent.provider",
    "fieldname": "provider",
    "fieldtype": "Link",
    "label": "Provider",
    "options": "AI Provider"
   },
   {
+   "fetch_from": "agent.model",
    "fieldname": "model",
    "fieldtype": "Link",
    "label": "Model",
@@ -50,7 +52,7 @@
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-19 13:46:40.430465",
+ "modified": "2025-11-27 17:49:31.448348",
  "modified_by": "Administrator",
  "module": "Huf",
  "name": "Agent Run Feedback",
