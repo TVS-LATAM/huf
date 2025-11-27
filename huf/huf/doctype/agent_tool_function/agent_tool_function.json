@@ -1,0 +1,163 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "field:tool_name",
+ "creation": "2025-08-11 18:39:47.986430",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "tool_name",
+  "tool_type",
+  "description",
+  "column_break_lrkj",
+  "types",
+  "reference_doctype",
+  "agent",
+  "base_url",
+  "provider_app",
+  "pass_parameters_as_json",
+  "function_path",
+  "header_section",
+  "http_headers",
+  "parameters_section",
+  "parameters",
+  "params",
+  "function_definition"
+ ],
+ "fields": [
+  {
+   "fieldname": "tool_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Tool Name",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "description",
+   "fieldtype": "Small Text",
+   "label": "Description",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_lrkj",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "types",
+   "fieldtype": "Select",
+   "label": "Types",
+   "options": "\nGet Document\nGet Multiple Documents\nGet List\nCreate Document\nCreate Multiple Documents\nUpdate Document\nUpdate Multiple Documents\nDelete Document\nDelete Multiple Documents\nSubmit Document\nCancel Document\nGet Amended Document\nCustom Function\nApp Provided\nAttach File to Document\nGet Report Result\nGet Value\nSet Value\nGET\nPOST\nRun Agent\nSpeech to Text"
+  },
+  {
+   "depends_on": "eval:doc.types != 'Run Agent' && doc.types != 'App Provided' && doc.types != 'Speech to Text'",
+   "fieldname": "reference_doctype",
+   "fieldtype": "Link",
+   "label": "Reference DocType",
+   "options": "DocType"
+  },
+  {
+   "fieldname": "parameters_section",
+   "fieldtype": "Section Break",
+   "label": "Parameters"
+  },
+  {
+   "fieldname": "parameters",
+   "fieldtype": "Table",
+   "label": "Parameters",
+   "options": "Agent Function Params"
+  },
+  {
+   "fieldname": "params",
+   "fieldtype": "JSON",
+   "label": "Params JSON"
+  },
+  {
+   "fieldname": "function_definition",
+   "fieldtype": "JSON",
+   "label": "Function Definition",
+   "read_only": 1
+  },
+  {
+   "depends_on": "eval: doc.types == \"Custom Function\" ||  doc.types == \"App Provided\";",
+   "fieldname": "function_path",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Function Path"
+  },
+  {
+   "default": "eval: doc.types == \"Custom Function\";",
+   "depends_on": "eval: doc.types == \"Custom Function\";",
+   "fieldname": "pass_parameters_as_json",
+   "fieldtype": "Check",
+   "label": "Pass parameters as JSON"
+  },
+  {
+   "depends_on": "eval: doc.types == \"App Provided\";",
+   "fieldname": "provider_app",
+   "fieldtype": "Data",
+   "label": "Provider App"
+  },
+  {
+   "depends_on": "eval:doc.types == 'GET' || doc.types == 'POST'",
+   "description": "Optional base URL that will be prefixed to the URL provided by the agent",
+   "fieldname": "base_url",
+   "fieldtype": "Data",
+   "label": "Base URL"
+  },
+  {
+   "fieldname": "http_headers",
+   "fieldtype": "Table",
+   "label": "HTTP Headers",
+   "options": "Agent Tool HTTP Header"
+  },
+  {
+   "depends_on": "eval:doc.types == 'GET' || doc.types == 'POST'",
+   "fieldname": "header_section",
+   "fieldtype": "Section Break",
+   "label": "Header"
+  },
+  {
+   "depends_on": "eval:doc.types == 'Run Agent'",
+   "fieldname": "agent",
+   "fieldtype": "Link",
+   "label": "Agent",
+   "options": "Agent"
+  },
+  {
+   "fieldname": "tool_type",
+   "fieldtype": "Link",
+   "label": "Tool Type",
+   "options": "Agent Tool Type",
+   "reqd": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-11-04 12:32:41.637905",
+ "modified_by": "Administrator",
+ "module": "Huf",
+ "name": "Agent Tool Function",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
