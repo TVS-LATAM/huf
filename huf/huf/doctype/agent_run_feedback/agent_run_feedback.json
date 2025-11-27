@@ -7,6 +7,7 @@
  "field_order": [
   "feedback",
   "comments",
+  "agent_message",
   "column_break_hkyi",
   "agent",
   "provider",
@@ -47,12 +48,18 @@
   {
    "fieldname": "column_break_hkyi",
    "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "agent_message",
+   "fieldtype": "Link",
+   "label": "Agent Message",
+   "options": "Agent Message"
   }
  ],
  "grid_page_length": 50,
  "index_web_pages_for_search": 1,
  "links": [],
- "modified": "2025-11-27 17:54:13.424533",
+ "modified": "2025-11-27 19:10:25.930829",
  "modified_by": "Administrator",
  "module": "Huf",
  "name": "Agent Run Feedback",
