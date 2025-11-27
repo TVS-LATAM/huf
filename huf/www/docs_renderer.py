@@ -31,7 +31,7 @@ class DocsRenderer(BaseRenderer):
 
 	def render(self):
 		"""Render the static HTML documentation file."""
-		app_path = frappe.get_app_path("agentflo")
+		app_path = frappe.get_app_path("huf")
 		html_file = os.path.join(app_path, "www", "docs.html")
 		
 		if not os.path.exists(html_file):
@@ -59,33 +59,33 @@ class DocsRenderer(BaseRenderer):
 		else:
 			base_path = "/docs"
 		
-		# Rewrite ALL occurrences of /assets/agentflo/docs/docs/ to the correct base path
+		# Rewrite ALL occurrences of /assets/huf/docs/docs/ to the correct base path
 		# This is the most common pattern for navigation links
 		# We do this first with a simple string replace for the common case
-		html_content = html_content.replace('/assets/agentflo/docs/docs/', base_path + '/')
+		html_content = html_content.replace('/assets/huf/docs/docs/', base_path + '/')
 		
 		# Then handle the root link
-		html_content = html_content.replace('href="/assets/agentflo/docs/"', f'href="{base_path}/"')
-		html_content = html_content.replace("href='/assets/agentflo/docs/'", f"href='{base_path}/'")
+		html_content = html_content.replace('href="/assets/huf/docs/"', f'href="{base_path}/"')
+		html_content = html_content.replace("href='/assets/huf/docs/'", f"href='{base_path}/'")
 		
 		# Now use regex for more complex patterns that need to preserve asset paths
-		# Pattern 1: Match href="/assets/agentflo/docs/..." but exclude asset paths
+		# Pattern 1: Match href="/assets/huf/docs/..." but exclude asset paths
 		html_content = re.sub(
-			r'href=["\']/assets/agentflo/docs/(?!_next|static|docs)([^"\']*)["\']',
+			r'href=["\']/assets/huf/docs/(?!_next|static|docs)([^"\']*)["\']',
 			f'href="{base_path}/\\1"',
 			html_content
 		)
 		
 		# Pattern 2: Handle data-href attributes
 		html_content = re.sub(
-			r'data-href=["\']/assets/agentflo/docs/(?!_next|static|docs)([^"\']*)["\']',
+			r'data-href=["\']/assets/huf/docs/(?!_next|static|docs)([^"\']*)["\']',
 			f'data-href="{base_path}/\\1"',
 			html_content
 		)
 		
 		# Pattern 3: Handle JavaScript string literals (any quotes)
 		html_content = re.sub(
-			r'(["\'])/assets/agentflo/docs/(?!_next|static|docs)([^"\']*)\1',
+			r'(["\'])/assets/huf/docs/(?!_next|static|docs)([^"\']*)\1',
 			f'\\1{base_path}/\\2\\1',
 			html_content
 		)
@@ -93,7 +93,7 @@ class DocsRenderer(BaseRenderer):
 		# Pattern 4: Handle Next.js __NEXT_DATA__ which might contain base paths
 		# Replace assetPrefix or basePath in JSON data
 		html_content = re.sub(
-			r'("assetPrefix"|"basePath"):\s*["\']/assets/agentflo/docs["\']',
+			r'("assetPrefix"|"basePath"):\s*["\']/assets/huf/docs["\']',
 			f'\\1: "{base_path}"',
 			html_content
 		)
