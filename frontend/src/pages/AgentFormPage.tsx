@@ -305,22 +305,23 @@ export function AgentFormPage() {
   };
 
   const handleOptimizePrompt = () => {
-    setOptimizingPrompt(true);
-    setTimeout(() => {
-      const currentInstructions = form.getValues('instructions');
-      const optimized = `${currentInstructions}\n\n[Optimized by AI]\n- Enhanced clarity and structure\n- Added specific examples\n- Improved constraint definition`;
-      form.setValue('instructions', optimized);
-      setOptimizingPrompt(false);
-      toast.success('Prompt optimized successfully!');
-    }, 2000);
+    toast.info('Coming Soon!');
+    // setOptimizingPrompt(true);
+    // setTimeout(() => {
+    //   const currentInstructions = form.getValues('instructions');
+    //   const optimized = `${currentInstructions}\n\n[Optimized by AI]\n- Enhanced clarity and structure\n- Added specific examples\n- Improved constraint definition`;
+    //   form.setValue('instructions', optimized);
+    //   setOptimizingPrompt(false);
+    //   toast.success('Prompt optimized successfully!');
+    // }, 2000);
   };
 
   const handleRunTest = () => {
-    toast.info('Running test...');
+    toast.info('Coming Soon!');
   };
 
   const handleDuplicate = () => {
-    toast.info('Duplicating agent...');
+    toast.info('Coming Soon!');
   };
 
   const handleDelete = () => {
@@ -329,7 +330,7 @@ export function AgentFormPage() {
   };
 
   const handleViewLogs = () => {
-    toast.info('Opening logs...');
+    toast.info('Coming Soon!');
   };
 
   const handleAddTools = (tools: AgentToolFunctionRef[]) => {
