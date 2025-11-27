@@ -58,6 +58,7 @@ export function AgentFormPage() {
         disabled: false,
         allow_chat: true,
         persist_conversation: true,
+        persist_user_history: true,
         description: '',
         instructions: '',
       },
@@ -179,6 +180,7 @@ export function AgentFormPage() {
           disabled: data.disabled === 1,
           allow_chat: data.allow_chat === 1,
           persist_conversation: data.persist_conversation === 1,
+          persist_user_history: data.persist_user_history === 1,
           description: data.description || '',
           instructions: data.instructions || '',
         });
@@ -246,6 +248,7 @@ export function AgentFormPage() {
         disabled: values.disabled ? 1 : 0,
         allow_chat: values.allow_chat ? 1 : 0,
         persist_conversation: values.persist_conversation ? 1 : 0,
+        persist_user_history: values.persist_user_history ? 1 : 0,
         description: values.description || '',
         instructions: values.instructions,
         // Include tools - Frappe child table format: array of objects with 'tool' field pointing to Agent Tool Function name
@@ -268,6 +271,7 @@ export function AgentFormPage() {
           disabled: newAgent.disabled === 1,
           allow_chat: newAgent.allow_chat === 1,
           persist_conversation: newAgent.persist_conversation === 1,
+          persist_user_history: newAgent.persist_user_history === 1,
           description: newAgent.description || '',
           instructions: newAgent.instructions || '',
         });
@@ -288,6 +292,7 @@ export function AgentFormPage() {
           disabled: values.disabled,
           allow_chat: values.allow_chat,
           persist_conversation: values.persist_conversation,
+          persist_user_history: values.persist_user_history,
           description: values.description,
           instructions: values.instructions,
         });
