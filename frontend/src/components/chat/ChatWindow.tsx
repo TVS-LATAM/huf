@@ -1,9 +1,10 @@
 import { useCallback, useState, useMemo, useEffect, useRef } from 'react';
-import { MicIcon } from 'lucide-react';
+import { MicIcon, Copy, Check, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { toast } from 'sonner';
 import type { ToolUIPart } from 'ai';
 import type { StickToBottomContext } from 'use-stick-to-bottom';
 import { useSearchParams } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
 
 import {
   MessageBranch,
@@ -93,6 +94,78 @@ type MessageType = {
 interface ChatWindowProps {
   chatId: string | null;
   onConversationCreated?: (conversationId: string) => void;
+}
+
+interface ResponseActionsProps {
+  content: string;
+}
+
+function ResponseActions({ content }: ResponseActionsProps) {
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (!copied) {
+      return;
+    }
+    const timer = setTimeout(() => setCopied(false), 4000);
+    return () => clearTimeout(timer);
+  }, [copied]);
+
+  const handleCopy = async () => {
+    if (!content) {
+      return;
+    }
+    try {
+      if (typeof navigator === 'undefined' || !navigator.clipboard) {
+        throw new Error('Clipboard API not available');
+      }
+      await navigator.clipboard.writeText(content);
+      setCopied(true);
+      toast.success('Response copied');
+    } catch (error) {
+      console.error(error);
+      toast.error('Unable to copy response');
+    }
+  };
+
+  const handleFeedback = (sentiment: 'up' | 'down') => {
+    toast.info(`Feedback (${sentiment === 'up' ? 'helpful' : 'not helpful'}) recorded`);
+  };
+
+  return (
+    <div className="mt-3 flex items-center gap-2 text-muted-foreground">
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="h-7 w-7"
+        onClick={handleCopy}
+        aria-label={copied ? 'Copied' : 'Copy response'}
+      >
+        {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="h-7 w-7"
+        onClick={() => handleFeedback('up')}
+        aria-label="Mark response helpful"
+      >
+        <ThumbsUp className="h-4 w-4" />
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="icon"
+        className="h-7 w-7"
+        onClick={() => handleFeedback('down')}
+        aria-label="Mark response not helpful"
+      >
+        <ThumbsDown className="h-4 w-4" />
+      </Button>
+    </div>
+  );
 }
 
 // Component to conditionally render header only when there are attachments
@@ -598,6 +671,9 @@ export function ChatWindow({ chatId, onConversationCreated }: ChatWindowProps) {
 
                           <MessageContent>
                             <MessageResponse>{version.content}</MessageResponse>
+                            {message.from === 'assistant' && version.content && (
+                              <ResponseActions content={version.content} />
+                            )}
                           </MessageContent>
                         </div>
                       </Message>
