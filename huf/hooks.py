@@ -55,6 +55,20 @@ app_license = "mit"
 
 # Home Pages
 # ----------
+website_route_rules = [
+    # Docs routes must come before the catch-all /huf route
+    {"from_route": "/huf/docs", "to_route": "huf/docs"},
+    {"from_route": "/huf/docs/<path:path>", "to_route": "huf/docs"},
+    {"from_route": "/huf/<path:app_path>", "to_route": "huf"},
+    {"from_route": "/huf/stream", "to_route": "huf/stream"}
+]
+
+# Register custom page renderer for SSE streaming and docs
+page_renderer = [
+    "huf.ai.agent_stream_renderer.AgentStreamRenderer",
+    "huf.www.docs_renderer.DocsRenderer",
+]
+
 
 # application home page (will override Website Settings)
 # home_page = "login"
@@ -83,13 +97,14 @@ app_license = "mit"
 # ------------
 
 # before_install = "huf.install.before_install"
-# after_install = "huf.install.after_install"
+after_install = "huf.install.after_install"
+after_migrate = "huf.install.after_migrate"
 
 # Uninstallation
 # ------------
 
 # before_uninstall = "huf.uninstall.before_uninstall"
-# after_uninstall = "huf.uninstall.after_uninstall"
+after_uninstall = "huf.ai.tool_registry.sync_app_tools"
 
 # Integration Setup
 # ------------------
@@ -137,13 +152,29 @@ app_license = "mit"
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-# 	}
-# }
+doc_events = {
+    "*": {
+        "validate": "huf.ai.agent_hooks.run_hooked_agents",
+        "before_insert": "huf.ai.agent_hooks.run_hooked_agents",
+        "after_insert": "huf.ai.agent_hooks.run_hooked_agents",
+        "before_save": "huf.ai.agent_hooks.run_hooked_agents",
+        "after_save": "huf.ai.agent_hooks.run_hooked_agents",
+        "before_submit": "huf.ai.agent_hooks.run_hooked_agents",
+        "after_submit": "huf.ai.agent_hooks.run_hooked_agents",
+        "before_cancel": "huf.ai.agent_hooks.run_hooked_agents",
+        "on_submit": "huf.ai.agent_hooks.run_hooked_agents",
+        "on_update": "huf.ai.agent_hooks.run_hooked_agents",
+        "before_rename": "huf.ai.agent_hooks.run_hooked_agents",
+        "after_rename": "huf.ai.agent_hooks.run_hooked_agents",
+        "on_trash": "huf.ai.agent_hooks.run_hooked_agents",
+        "after_delete": "huf.ai.agent_hooks.run_hooked_agents",
+    },
+    "Agent Trigger": {
+        "after_insert": "huf.ai.agent_hooks.clear_doc_event_agents_cache",
+        "on_update": "huf.ai.agent_hooks.clear_doc_event_agents_cache",
+        "on_trash": "huf.ai.agent_hooks.clear_doc_event_agents_cache",
+    },
+}
 
 # Scheduled Tasks
 # ---------------
@@ -165,6 +196,12 @@ app_license = "mit"
 # 		"huf.tasks.monthly"
 # 	],
 # }
+scheduler_events = {
+    "all": [
+        "huf.ai.agent_scheduler.run_scheduled_agents"
+    ]
+}
+
 
 # Testing
 # -------
