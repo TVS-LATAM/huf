@@ -305,6 +305,7 @@ export function AgentFormPage() {
   };
 
   const handleOptimizePrompt = () => {
+    setOptimizingPrompt((value) => value);
     toast.info('Coming Soon!');
     // setOptimizingPrompt(true);
     // setTimeout(() => {
@@ -461,6 +462,7 @@ export function AgentFormPage() {
           onDuplicate={handleDuplicate}
           onViewLogs={handleViewLogs}
           onDelete={handleDelete}
+          agentId={!isNew && id ? id : undefined}
         />
 
         <Form {...form}>
