@@ -39,11 +39,13 @@ class OpenAISettings(Document):
     2. text_to_speech (Text-to-Speech)
     """
 
-    def get_headers(self):
+    def get_headers(self, api_key=None):
         """
         Centralized header generation for all OpenAI calls.
         """
-        api_key = self.get_password("api_key")
+        if not api_key:
+            api_key = self.get_password("api_key")
+            
         if not api_key:
             frappe.throw(f"{self.name}: API Key is not configured.")
         
@@ -65,6 +67,9 @@ class OpenAISettings(Document):
             "model": self.model or "whisper-1"
         }
         data.update(kwargs)
+        
+        # Extract api_key if provided in kwargs
+        api_key = kwargs.get("api_key")
 
         try:
             with open(file_path, "rb") as audio:
@@ -74,7 +79,7 @@ class OpenAISettings(Document):
                 
                 response = requests.post(
                     self.api_url or "https://api.openai.com/v1/audio/transcriptions",
-                    headers=self.get_headers(),
+                    headers=self.get_headers(api_key),
                     files=files,
                     data=data,
                     timeout=120
@@ -121,11 +126,13 @@ class OpenAISettings(Document):
             "voice": voice or "alloy"
         }
         data.update(kwargs)
+        
+        api_key = kwargs.get("api_key")
 
         try:
             response = requests.post(
                 url,
-                headers=self.get_headers(),
+                headers=self.get_headers(api_key),
                 json=data,
                 timeout=60
             )

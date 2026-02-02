@@ -60,6 +60,7 @@ def upload_audio_and_transcribe(docname: str, filename: str, b64data: str,
     
     if not file_id:
         file_id = frappe.db.get_value("File", {
+            
             "attached_to_doctype": "Agent Message", 
             "attached_to_name": msg.name
         }, "name", order_by="creation desc")
@@ -69,11 +70,20 @@ def upload_audio_and_transcribe(docname: str, filename: str, b64data: str,
 
     provider = frappe.db.get_value("Agent", chat.agent, "provider")
     
+    # Fetch API Key from AI Provider to support unified configuration
+    api_key = None
+    if provider:
+        try:
+            api_key = frappe.get_doc("AI Provider", provider).get_password("api_key")
+        except Exception:
+            pass
+
     res = transcription_handler.handle_speech_to_text(
         file_id=file_id,
         provider=provider,
         conversation=conversation or chat.conversation,
-        message_id=msg.name
+        message_id=msg.name,
+        api_key=api_key 
     )
 
     if not res.get("success"):
