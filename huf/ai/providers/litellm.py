@@ -22,7 +22,14 @@ from types import SimpleNamespace
 
 import frappe
 import litellm
-from litellm import InternalServerError, RateLimitError, APIError, BadRequestError, completion_cost
+from litellm import (
+    InternalServerError, 
+    RateLimitError, 
+    APIError, 
+    BadRequestError, 
+    completion_cost,
+    transcription
+)
 from litellm.utils import supports_prompt_caching, trim_messages
 from huf.ai.tool_serializer import serialize_tools
 
@@ -117,9 +124,74 @@ def _setup_api_key(provider_name: str, api_key: str, completion_kwargs: dict):
     if provider_name in env_var_providers:
         # Set environment variable for this request
         os.environ[env_var_providers[provider_name]] = api_key
-    else:
+    elif api_key:
         # Most providers accept api_key parameter directly
         completion_kwargs["api_key"] = api_key
+
+
+async def transcribe_audio(file_doc, kwargs=None) -> dict:
+    """
+    LiteLLM-based audio transcription.
+    Supports OpenAI Whisper, Groq Whisper, and other LiteLLM-supported audio providers.
+    """
+    kwargs = kwargs or {}
+    
+    if not file_doc:
+        return {"success": False, "error": "Audio file is required"}
+
+    from frappe.utils.file_manager import get_file_path
+    file_path = None
+    if hasattr(file_doc, "file_name"):
+        file_path = get_file_path(file_doc.file_name)
+    elif isinstance(file_doc, dict) and file_doc.get("file_name"):
+        file_path = get_file_path(file_doc["file_name"])
+
+    if not file_path or not os.path.exists(file_path):
+        return {"success": False, "error": "Unable to resolve physical file path."}
+
+    model = kwargs.get("model") or "whisper-1"
+    provider_name = model.split("/")[0] if "/" in model else "openai"
+    
+    # Setup API Key
+    api_key = kwargs.get("api_key")
+    if not api_key:
+        try:
+            # Try to infer provider from model name if not explicitly passed
+            # mapping logic similar to _normalize_model_name
+            p_name = provider_name
+            if p_name == "whisper-1": p_name = "openai"
+            
+            provider_doc = frappe.get_doc("AI Provider", p_name.capitalize())
+            api_key = provider_doc.get_password("api_key")
+        except Exception:
+            pass
+
+    if not api_key:
+        return {"success": False, "error": f"API Key for provider '{provider_name}' not found."}
+
+    completion_kwargs = {}
+    _setup_api_key(provider_name, api_key, completion_kwargs)
+
+    try:
+        with open(file_path, "rb") as audio_file:
+            response = await asyncio.to_thread(
+                transcription,
+                model=model,
+                file=audio_file,
+                **completion_kwargs
+            )
+            
+            transcript = getattr(response, "text", "")
+            
+            return {
+                "success": True,
+                "result": transcript,
+                "raw_response": response
+            }
+
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), "LiteLLM Transcription Error")
+        return {"success": False, "error": str(e)}
 
 
 async def run(agent, enhanced_prompt, provider, model, context=None):
@@ -172,6 +244,11 @@ async def run(agent, enhanced_prompt, provider, model, context=None):
 
         if not api_key:
             frappe.throw("API key not configured in AI Provider.")
+
+        # Bypass for Whisper models: Whisper is not a chat model and will fail in chat/completions
+        # If the model is whisper, we return the prompt directly because it was already transcribed
+        if "whisper" in model.lower() or model.lower() == "openai/whisper-1":
+            return SimpleResult(enhanced_prompt, {"input_tokens": 0, "output_tokens": 0}, [])
 
         normalized_model = _normalize_model_name(model, provider)
 
@@ -595,6 +672,20 @@ async def run_stream(agent, enhanced_prompt, provider, model, context=None):
 
         if not api_key:
             yield {"type": "error", "error": "API key not configured in AI Provider."}
+            return
+
+        # Bypass for Whisper models in stream
+        if "whisper" in model.lower() or model.lower() == "openai/whisper-1":
+            yield {
+                "type": "delta",
+                "content": enhanced_prompt,
+                "full_response": enhanced_prompt,
+            }
+            yield {
+                "type": "complete",
+                "final_output": enhanced_prompt,
+                "usage": {"input_tokens": 0, "output_tokens": 0}
+            }
             return
 
         normalized_model = _normalize_model_name(model, provider)
