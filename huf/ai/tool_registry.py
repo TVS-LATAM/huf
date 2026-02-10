@@ -30,6 +30,7 @@ def upsert_tool_doc(d):
         "doctype": TOOL_DOCTYPE,
         "tool_name": d["tool_name"],
         "description": d["description"],
+        "tool_type": d.get("tool_type", "InsertOne"),
         "types":"App Provided",
         "function_path": d["function_path"],
         "parameters": [{"param_name": p["name"], "param_type": p["type"], "required": int(p.get("required", False))}
@@ -290,6 +291,7 @@ def sync_discovered_tools(apps_to_scan=None, use_cache=True):
             payload = {
                 "tool_name": tool_name,
                 "description": d.get("description", ""),
+                "tool_type": d.get("tool_type", "InsertOne"),
                 "types": "App Provided",
                 "function_path": d.get("function_path"),
                 "parameters": [
