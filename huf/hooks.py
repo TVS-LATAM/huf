@@ -318,12 +318,25 @@ fixtures = [
 
 huf_tools = [
     {
-        "tool_name": "create_quotation",
-        "description": "Create a new Sales Quotation for a Customer. AI should provide 'customer_name' (the actual name) and 'items'.",
-        "function_path": "huf.ai.erpnext_tools.create_quotation_v2",
+        "tool_name": "huf_create_quotation",
+        "description": "Create a NEW Sales Quotation in ERPNext. Strictly for 'Quotation' doctype. Requires customer_name, items, plate (Licence Plate), and project_name.",
+        "function_path": "huf.ai.erpnext_tools.create_quotation_custom",
         "parameters": [
             {"name": "customer_name", "type": "Data", "required": True},
-            {"name": "items", "type": "Table", "required": True}
+            {"name": "items", "type": "Table", "required": True},
+            {"name": "plate", "type": "Data", "required": True},
+            {"name": "project_name", "type": "Data", "required": True}
+        ]
+    },
+    {
+        "tool_name": "huf_update_quotation",
+        "description": "UPDATE an existing Sales Quotation. Strictly for 'Quotation' doctype. Use to modify items, plate, or project_name within the quotation. DO NOT use for 'Project' documents.",
+        "function_path": "huf.ai.erpnext_tools.update_quotation_custom",
+        "parameters": [
+            {"name": "quotation_id", "type": "Data", "required": True},
+            {"name": "items", "type": "Table", "required": False},
+            {"name": "plate", "type": "Data", "required": False},
+            {"name": "project_name", "type": "Data", "required": False}
         ]
     }
 ]

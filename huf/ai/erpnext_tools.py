@@ -2,7 +2,7 @@ import frappe
 from frappe import _
 
 @frappe.whitelist()
-def create_quotation_v2(customer_name: str, items, **kwargs):
+def create_quotation_custom(customer_name: str, items, plate: str, project_name: str, **kwargs):
     """
     Robust wrapper for creating Sales Quotations.
     Ensures quotation_to and party_name are set correctly for ERPNext.
@@ -49,6 +49,8 @@ def create_quotation_v2(customer_name: str, items, **kwargs):
             "doctype": "Quotation",
             "quotation_to": "Customer",
             "party_name": customer_name,
+            "plate": plate,
+            "project_name": project_name,
             "items": formatted_items
         }
         
@@ -69,6 +71,75 @@ def create_quotation_v2(customer_name: str, items, **kwargs):
         }
     except Exception as e:
         frappe.log_error(frappe.get_traceback(), _("Create Quotation V2 Failed"))
+        return {
+            "success": False,
+            "error": str(e)
+        }
+
+@frappe.whitelist()
+def update_quotation_custom(quotation_id: str, items=None, plate=None, project_name=None, **kwargs):
+    """
+    Robust wrapper for updating Sales Quotations.
+    
+    Args:
+        quotation_id: Name of the Quotation document
+        items: List of quotation items to update/add
+        kwargs: Other fields to update
+    """
+    try:
+        frappe.logger().info(f"[ERPNext Tools] Updating quotation: {quotation_id}")
+        
+        doc = frappe.get_doc("Quotation", quotation_id)
+        
+        if plate: doc.plate = plate
+        if project_name: doc.project_name = project_name
+
+        # Update flat fields
+        meta = frappe.get_meta("Quotation")
+        for key, value in kwargs.items():
+            if meta.has_field(key) and key not in ["items", "doctype", "name", "plate", "project_name"]:
+                doc.set(key, value)
+        
+        # Handle Items
+        if items:
+            # Re-use the same robust parsing logic as create
+            if isinstance(items, str):
+                try:
+                    import json
+                    items = json.loads(items)
+                except:
+                    import re
+                    qty_match = re.search(r'(\d+)', items)
+                    qty = qty_match.group(1) if qty_match else 1
+                    code_match = re.search(r'([A-Z0-9_-]{3,})', items)
+                    code = code_match.group(1) if code_match else items
+                    items = [{"item_code": code, "qty": float(qty)}]
+            
+            if not isinstance(items, list):
+                items = [items]
+
+            # Simplified logic: If AI provides items, it usually means "set these items"
+            # or "add these items". In ERPNext Update, we often replace the table
+            # unless we want to be smarter and merge.
+            # For brevity and reliability for AI, we will REPLACE the current items 
+            # with the ones provided, or allow merging if specified.
+            # Default: Replace for now as it's cleaner for AI to "set the items to X".
+            doc.set("items", [])
+            for item in items:
+                if isinstance(item, str):
+                    doc.append("items", {"item_code": item, "qty": 1.0})
+                elif isinstance(dict, type(item)):
+                    doc.append("items", item)
+        
+        doc.save()
+        
+        return {
+            "success": True,
+            "name": doc.name,
+            "message": _("Quotation {0} updated successfully").format(doc.name)
+        }
+    except Exception as e:
+        frappe.log_error(frappe.get_traceback(), _("Update Quotation V2 Failed"))
         return {
             "success": False,
             "error": str(e)
