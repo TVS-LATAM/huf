@@ -562,9 +562,18 @@ async def run(agent, enhanced_prompt, provider, model, context=None):
                             )
                             frappe.db.commit()
                         
+                        # Console logging for visibility
+                        print(f"\033[94m[LITELLM TOOL CALL]\033[0m Run: {context.get('agent_run_id')} | Tool: {tool_name}")
+                        if tool_args:
+                            print(f"  Args: {tool_args}")
+                        
                         result_content = await _execute_tool_call(
                             tool_to_run, tool_args, context
                         )
+                        
+                        # Result logging
+                        print(f"\033[92m[LITELLM TOOL RESULT]\033[0m Run: {context.get('agent_run_id')} | Tool: {tool_name}")
+                        print(f"  Result: {str(result_content)[:500]}..." if len(str(result_content)) > 500 else f"  Result: {result_content}")
                     except Exception as e:
                         result_content = f"Error executing tool {tool_name}: {str(e)}"
                 else:
@@ -934,9 +943,26 @@ async def run_stream(agent, enhanced_prompt, provider, model, context=None):
                                             )
                                             frappe.db.commit()
                                         
+                                        # Console logging for visibility
+                                        print(f"\033[94m[LITELLM TOOL CALL]\033[0m Run: {context.get('agent_run_id')} | Tool: {tool_name}")
+                                        if tool_args:
+                                            print(f"  Args: {tool_args}")
+                                            
                                         result_content = await _execute_tool_call(
                                             tool_to_run, tool_args, context
                                         )
+
+                                        # Result logging
+                                        print(f"\033[92m[LITELLM TOOL RESULT]\033[0m Run: {context.get('agent_run_id')} | Tool: {tool_name}")
+                                        print(f"  Result: {str(result_content)[:500]}..." if len(str(result_content)) > 500 else f"  Result: {result_content}")
+
+                                        # Yield tool result for agent_integration to handle
+                                        yield {
+                                            "type": "tool_result",
+                                            "tool_name": tool_name,
+                                            "tool_call_id": tool_call["id"],
+                                            "result": result_content
+                                        }
                                         
                                         # Update Tool Status in DB and Emit Event
                                         if context and context.get("conversation_id"):

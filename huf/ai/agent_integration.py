@@ -323,6 +323,14 @@ def process_tool_call(agent_run, conversation, name=None, args=None, result=None
                 
                 doc.update(update_data)
                 doc.save()
+                
+                # Console logging for visibility
+                print(f"\033[92m[TOOL RESULT]\033[0m Run: {agent_run} | Tool: {doc.tool}")
+                if result is not None:
+                    print(f"  Result: {str(result)[:500]}..." if len(str(result)) > 500 else f"  Result: {result}")
+                if error:
+                    print(f"  \033[91mError:\033[0m {error}")
+                
                 return doc.name 
             else:
                 frappe.log_error(f"Received tool output for run {agent_run} but no Queued tool call found.", "Agent Tool Call Warning")
@@ -352,6 +360,12 @@ def process_tool_call(agent_run, conversation, name=None, args=None, result=None
                 "call_id": tool_call_id 
             })
             doc.insert()
+            
+            # Console logging for visibility
+            print(f"\033[94m[TOOL CALL]\033[0m Run: {agent_run} | Tool: {name}")
+            if args:
+                print(f"  Args: {args}")
+            
             return doc.name
 
         frappe.db.commit()
@@ -1084,6 +1098,49 @@ async def run_agent_stream(
                         )
                         safe_commit()
                         
+                    yield chunk
+                
+                elif chunk_type == "tool_result":
+                    # Log tool result and update message
+                    tool_name = chunk.get("tool_name")
+                    tool_call_id = chunk.get("tool_call_id")
+                    result_content = chunk.get("result")
+                    
+                    try:
+                        tool_result = json.loads(result_content) if isinstance(result_content, str) else result_content
+                    except Exception:
+                        tool_result = result_content
+
+                    raw_item = {"name": tool_name, "output": result_content, "id": tool_call_id}
+                    updated_tool_call_id = log_tool_call(run_doc, conversation, raw_item, tool_result=tool_result, is_output=True)
+
+                    if updated_tool_call_id:
+                        # Update the corresponding Agent Message
+                        message_name = frappe.db.get_value("Agent Message", {"tool_calll": updated_tool_call_id}, "name")
+                        if message_name:
+                            msg_doc = frappe.get_doc("Agent Message", message_name)
+                            result_str = json.dumps(tool_result) if not isinstance(tool_result, str) else tool_result
+                            msg_doc.content += f"\n\n**Tool Result:**\n{result_str}"
+                            msg_doc.kind = "Tool Result"
+                            msg_doc.save(ignore_permissions=True)
+                        
+                        # Emit realtime event
+                        frappe.publish_realtime(
+                            event=f'conversation:{conversation.name}',
+                            message={
+                                "type": "tool_call_completed",
+                                "conversation_id": conversation.name,
+                                "agent_run_id": run_doc.name,
+                                "tool_call_id": updated_tool_call_id,
+                                "message_id": message_name or None,
+                                "tool_name": tool_name,
+                                "tool_status": "Completed",
+                                "tool_result": tool_result,
+                            },
+                            user=frappe.session.user,
+                        )
+                        safe_commit()
+
                     yield chunk
                 
                 elif chunk_type == "complete":

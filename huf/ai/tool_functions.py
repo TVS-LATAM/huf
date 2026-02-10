@@ -8,7 +8,7 @@ import requests
 
 
 def get_document(doctype: str, document_id: str):
-	
+	print("=============> get_document")
 	"""
 	Get a document from the database
 	"""
@@ -17,7 +17,7 @@ def get_document(doctype: str, document_id: str):
 
 
 def get_documents(doctype: str, document_ids: list):
-	
+	print("=============> get_documents")
 	"""
 	Get documents from the database
 	"""
@@ -29,6 +29,7 @@ def get_documents(doctype: str, document_ids: list):
 
 
 def create_document(doctype: str, data: dict, function=None):
+	print("=============> create_document")
 	"""
 	Create a document in the database
 	"""
@@ -50,6 +51,7 @@ def create_document(doctype: str, data: dict, function=None):
 
 
 def create_documents(doctype: str, data: list, function=None):
+    print("=============> create_documents")
     """
     Create multiple documents.
     Returns created document_ids and a summary.
@@ -77,6 +79,7 @@ def create_documents(doctype: str, data: list, function=None):
 
 
 def update_document(doctype: str, document_id: str, data: dict, tool=None):
+    print("=============> update_document")
     """
     Update a document in the database with proper error handling
     
@@ -114,6 +117,7 @@ def update_document(doctype: str, document_id: str, data: dict, tool=None):
         return {"success": False, "error": str(e)}
 
 def update_documents(doctype: str, data: list, function=None):
+    print("=============> update_documents")
     """
     Update multiple documents.
     Each item must contain 'document_id' (or 'name') and the fields to update.
@@ -146,6 +150,7 @@ def update_documents(doctype: str, data: list, function=None):
 
 
 def delete_document(doctype: str, document_id: str):
+    print("=============> delete_document")
     """
     Delete a document with proper error handling
     
@@ -167,6 +172,7 @@ def delete_document(doctype: str, document_id: str):
         return {"success": False, "error": str(e)}
 
 def delete_documents(doctype: str, document_ids: list):
+	print("=============> delete_documents")
 	"""
 	Delete documents from the database
 	"""
@@ -176,6 +182,7 @@ def delete_documents(doctype: str, document_ids: list):
 
 
 def submit_document(doctype: str, document_id: str):
+	print("=============> submit_document")
 	"""
 	Submit a document in the database
 	"""
@@ -189,6 +196,7 @@ def submit_document(doctype: str, document_id: str):
 
 
 def cancel_document(doctype: str, document_id: str):
+	print("=============> cancel_document")
 	"""
 	Cancel a document in the database
 	"""
@@ -202,6 +210,7 @@ def cancel_document(doctype: str, document_id: str):
 
 
 def get_amended_document_id(doctype: str, document_id: str):
+	print("=============> get_amended_document_id")
 	"""
 	Get the amended document for a given document
 	"""
@@ -213,6 +222,7 @@ def get_amended_document_id(doctype: str, document_id: str):
 
 
 def get_amended_document(doctype: str, document_id: str):
+    print("=============> get_amended_document")
     """
     Return the amended document (first match) for a given document, if any.
     """
@@ -222,6 +232,7 @@ def get_amended_document(doctype: str, document_id: str):
     return {"message": f"{doctype} {document_id} is not amended", "doctype": doctype}
 
 def get_list(doctype: str, filters: dict = None, fields: list = None, limit: int = 20):
+	print("=============> get_list")
 	"""
 	Get a list of documents from the database
 	"""
@@ -246,6 +257,7 @@ def get_list(doctype: str, filters: dict = None, fields: list = None, limit: int
 
 
 def get_value(doctype: str, filters: dict = None, fieldname: str | list = "name"):
+	print("=============> get_value")
 	"""
 	Returns a value from a document
 
@@ -269,6 +281,7 @@ def get_value(doctype: str, filters: dict = None, fieldname: str | list = "name"
 
 
 def set_value(doctype: str, document_id: str, fieldname: str | dict, value: str = None):
+	print("=============> set_value")
 	"""
 	Set a value in a document
 
@@ -295,6 +308,7 @@ def get_report_result(
 	ignore_prepared_report: bool = False,
 	are_default_filters: bool = True,
 ):
+	print("=============> get_report_result")
 	"""
 	Run a report and return the columns and result
 	"""
@@ -419,6 +433,7 @@ def _process_single_attachment(doctype, document_id, file_path):
 
 
 def attach_file_to_document(doctype: str, document_id: str, **kwargs):
+    print("=============> attach_file_to_document")
     """
     Attach multiple files to a document. 
     kwargs keys are field names, values are file URLs.
