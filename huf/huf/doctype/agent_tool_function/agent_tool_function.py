@@ -48,7 +48,7 @@ class AgentToolFunction(Document):
 				frappe.throw(_("Please select a DocType for this function."))
 
 	def validate_fields_for_doctype(self):
-		if not self.reference_doctype:
+		if not self.reference_doctype or self.types == "Custom Function":
 			return
 
 		doctype = frappe.get_meta(self.reference_doctype)
@@ -515,7 +515,11 @@ class AgentToolFunction(Document):
 				obj["additionalProperties"] = True
 
 			if param.type == "array":
+				# Default to string items, but allow flexibility
 				obj["items"] = {"type": "string"}
+				if self.types == "Custom Function":
+					# For custom functions, we might want to be more lenient
+					del obj["items"]
 
 			if param.type == "string" and param.options:
 				obj["enum"] = param.options.split("\n")

@@ -315,3 +315,15 @@ fixtures = [
         ]
     }
 ]
+
+huf_tools = [
+    {
+        "tool_name": "create_quotation",
+        "description": "Create a new Sales Quotation for a Customer. AI should provide 'customer_name' (the actual name) and 'items'.",
+        "function_path": "huf.ai.erpnext_tools.create_quotation_v2",
+        "parameters": [
+            {"name": "customer_name", "type": "Data", "required": True},
+            {"name": "items", "type": "Table", "required": True}
+        ]
+    }
+]
